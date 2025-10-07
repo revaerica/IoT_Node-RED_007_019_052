@@ -31,14 +31,22 @@
    ![WhatsApp Image 2025-10-07 at 12 20 54](https://github.com/user-attachments/assets/31dc5dce-7e15-461e-96ef-143083f2837c)
 
    1. MQTT in — Topic: `/sensor/suhu`
+      
       Tipe: `mqtt in` (subscribe)
+
       Output: `msg.payload` berisi nilai suhu
+
       Debug 1 — menerima output dari `/sensor/suhu`
+
       Menampilkan `msg.payload` di sidebar debug (mode: `msg.payload : number`)
-   2. MQTT in — Topic: `/sensor/kelembapan`
+   3. MQTT in — Topic: `/sensor/kelembapan`
+
       Tipe: `mqtt in` (subscribe)
+
       Output: `msg.payload` berisi nilai kelembapan
+
       Debug 2 — menerima output dari `/sensor/kelembapan`
+
       Menampilkan `msg.payload` di sidebar debug (mode: `msg.payload : number`)
 
 5. Cari IP laptop menggunakan terminal dengan command `ipconfig` (IPv4) dan masukkan ke Node-RED serta ke code yang akan dijalankan
