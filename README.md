@@ -15,3 +15,231 @@
 
 2. 
 
+## Penjelasan Kode
+
+ESP32 membaca data suhu dan kelembapan dari sensor **DHT11**, kemudian mengirimkan data tersebut ke **broker Mosquitto** menggunakan protokol **MQTT**.
+Selanjutnya, **Node-RED** berfungsi sebagai *subscriber* untuk menampilkan data dalam bentuk output **Debug**.
+
+---
+
+### Kode Program ESP32
+
+```
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include "DHT.h"
+
+const char* ssid = "Nijiro";
+const char* password = "Murakami";
+const char* mqtt_server = "10.200.123.34"; 
+
+#define DHTPIN 3
+#define DHTTYPE DHT11
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup_wifi() {
+  delay(10);
+  Serial.println();
+  Serial.print("Menghubungkan ke ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi tersambung!");
+  Serial.print("IP Address ESP32: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Menghubungkan ke MQTT...");
+    if (client.connect("ESP32Client")) {
+      Serial.println("Tersambung ke broker!");
+    } else {
+      Serial.print("Gagal (rc=");
+      Serial.print(client.state());
+      Serial.println("), coba lagi 5 detik...");
+      delay(5000);
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Gagal baca data DHT!");
+    delay(2000);
+    return;
+  }
+
+  char tempStr[8];
+  char humStr[8];
+  dtostrf(t, 1, 2, tempStr);
+  dtostrf(h, 1, 2, humStr);
+
+  client.publish("/sensor/suhu", tempStr);
+  client.publish("/sensor/kelembapan", humStr);
+
+  Serial.print("Suhu: ");
+  Serial.print(t);
+  Serial.print(" °C | Kelembapan: ");
+  Serial.print(h);
+  Serial.println(" %");
+
+  delay(5000);
+}
+```
+
+---
+
+### Penjelasan Kode
+
+#### Library & Konstanta
+
+* `WiFi.h` → Menghubungkan ESP32 ke jaringan WiFi
+* `PubSubClient.h` → Mengatur komunikasi MQTT dengan broker
+* `DHT.h` → Membaca data suhu dan kelembapan dari sensor DHT11
+
+Konfigurasi jaringan:
+
+```
+const char* ssid = "Nijiro";
+const char* password = "Murakami";
+const char* mqtt_server = "10.200.123.34";
+```
+
+---
+
+#### setup_wifi()
+
+Menghubungkan ESP32 ke jaringan WiFi dan menampilkan alamat IP:
+
+```
+setup_wifi();
+```
+
+**Output di Serial Monitor:**
+
+```
+Menghubungkan ke Nijiro
+.........
+WiFi tersambung!
+IP Address ESP32: 192.168.x.x
+```
+
+---
+
+#### reconnect()
+
+Menghubungkan ESP32 ke **broker Mosquitto**.
+Jika koneksi gagal, ESP32 akan mencoba lagi setiap 5 detik.
+
+```
+client.connect("ESP32Client");
+```
+
+---
+
+#### loop()
+
+* Membaca data suhu & kelembapan dari DHT11
+* Mengonversi data ke string
+* Mengirimkan data ke broker melalui MQTT
+
+Topic yang dikirim:
+
+* `/sensor/suhu`
+* `/sensor/kelembapan`
+
+**Output di Serial Monitor:**
+
+```
+Suhu: 27.50 °C | Kelembapan: 65.20 %
+```
+
+---
+
+### Konfigurasi Node-RED
+
+#### Flow:
+
+```
+[mqtt in (topic: /sensor/suhu)] → [debug]
+[mqtt in (topic: /sensor/kelembapan)] → [debug]
+```
+
+#### Konfigurasi Node “MQTT in”:
+
+| Properti | Nilai                                    |
+| -------- | ---------------------------------------- |
+| Server   | `10.200.123.34` (IP broker Mosquitto)    |
+| Port     | `1883`                                   |
+| Topic    | `/sensor/suhu` atau `/sensor/kelembapan` |
+
+Setelah klik **Deploy**, buka tab **Debug (kanan atas)**.
+Jika berhasil, Node-RED akan menampilkan pesan seperti berikut:
+
+```
+msg.payload : string
+"27.50"
+```
+
+---
+
+### Ringkasan Sistem
+
+| Komponen      | Fungsi                                     | Output                             |
+| ------------- | ------------------------------------------ | ---------------------------------- |
+| **ESP32**     | Membaca suhu & kelembapan, kirim ke broker | Data MQTT                          |
+| **DHT11**     | Sensor suhu dan kelembapan                 | Nilai suhu & kelembapan            |
+| **Mosquitto** | Broker MQTT yang menyalurkan data          | Menyimpan & mendistribusikan pesan |
+| **Node-RED**  | Subscriber yang menerima data dari broker  | Menampilkan data di tab Debug      |
+
+---
+
+### Alur Komunikasi
+
+1. **ESP32** membaca data dari **DHT11**
+2. Data dikirim via WiFi ke **Mosquitto Broker**
+3. **Node-RED** subscribe ke topic yang sama (`/sensor/suhu`, `/sensor/kelembapan`)
+4. Data muncul di tab **Debug** Node-RED
+
+---
+
+### Contoh Output
+
+```
+WiFi tersambung!
+IP Address ESP32: 192.168.0.115
+Tersambung ke broker!
+Suhu: 27.36 °C | Kelembapan: 64.80 %
+```
+
+**Node-RED Debug:**
+
+```
+msg.payload : string
+"27.36"
+```
