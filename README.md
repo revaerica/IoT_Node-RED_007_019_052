@@ -13,7 +13,15 @@
    Tools> Manage Libraries
    <img width="1919" height="708" alt="image" src="https://github.com/user-attachments/assets/612bace2-158b-462f-83a8-df9956d17dbf" />
 
-2. 
+2. Install Node-RED di terminal menggunakan command `npm install -g --unsafe-perm node-red` > run node red menggunakan command `node-red` > buka node red di browser `http://127.0.0.1:1880/`
+
+   <img width="1919" height="1242" alt="image" src="https://github.com/user-attachments/assets/b5081e27-2d6f-4f99-b0b1-27ecd3378453" />
+
+3. 
+
+![WhatsApp Image 2025-10-07 at 12 24 33 (1)](https://github.com/user-attachments/assets/32e74cd4-f317-4fc8-8900-733eaca6bed3)
+
+![WhatsApp Image 2025-10-07 at 12 24 33](https://github.com/user-attachments/assets/9657feb8-6877-4ad4-a376-478a35d89213)
 
 ## Penjelasan Kode
 
