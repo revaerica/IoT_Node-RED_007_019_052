@@ -8,4 +8,5 @@
 | 3   | Salsa Bil Ulla                          | 5027241052  | 
 
 ## Langkah-Langkah Pengerjaan Project ESP32 di Node-RED, Mosquitto, dan Arduino IDE
-1. 
+1. Kita set up Arduino IDE untuk melakukan instalasi PubSubClient (MQTT communication) dan DHT sensor library (DHT)
+
