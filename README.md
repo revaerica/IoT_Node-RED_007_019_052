@@ -17,11 +17,45 @@
 
    <img width="1919" height="1242" alt="image" src="https://github.com/user-attachments/assets/b5081e27-2d6f-4f99-b0b1-27ecd3378453" />
 
-3. 
+3. Install Mosquitto melalui `https://mosquitto.org/download/` dan konfigurasi sekaligus verifikasi kofigurasi broker mqtt mosquitto pada file `mosquitto.conf` dengan menambahkan
+   ```
+   listener 9000
+   protocol websockets
+   listener 1883
+   protocol mqtt
+   allow_anonymous true
+   ```
 
-![WhatsApp Image 2025-10-07 at 12 24 33 (1)](https://github.com/user-attachments/assets/32e74cd4-f317-4fc8-8900-733eaca6bed3)
+4. Buat flow di Node-RED terlebih dahulu
+   
+   ![WhatsApp Image 2025-10-07 at 12 20 54](https://github.com/user-attachments/assets/31dc5dce-7e15-461e-96ef-143083f2837c)
 
-![WhatsApp Image 2025-10-07 at 12 24 33](https://github.com/user-attachments/assets/9657feb8-6877-4ad4-a376-478a35d89213)
+   1. MQTT in — Topic: `/sensor/suhu`
+      Tipe: `mqtt in` (subscribe)
+      Output: `msg.payload` berisi nilai suhu
+      Debug 1 — menerima output dari `/sensor/suhu`
+      Menampilkan `msg.payload` di sidebar debug (mode: `msg.payload : number`)
+   2. MQTT in — Topic: `/sensor/kelembapan`
+      Tipe: `mqtt in` (subscribe)
+      Output: `msg.payload` berisi nilai kelembapan
+      Debug 2 — menerima output dari `/sensor/kelembapan`
+      Menampilkan `msg.payload` di sidebar debug (mode: `msg.payload : number`)
+
+5. Cari IP laptop menggunakan terminal dengan command `ipconfig` (IPv4) dan masukkan ke Node-RED serta ke code yang akan dijalankan
+   
+   ![WhatsApp Image 2025-10-07 at 12 20 54 (1)](https://github.com/user-attachments/assets/a5f7286f-84d7-489a-9da4-0fa15f9a84d6)
+
+   ![WhatsApp Image 2025-10-07 at 12 20 54 (3)](https://github.com/user-attachments/assets/0e381c2a-d710-4dd1-9405-1e4907437ed3)
+
+7. Rangkai rangkaian ESP32 dan sensor suhu/kelembapan
+
+   ![WhatsApp Image 2025-10-07 at 12 24 33 (1)](https://github.com/user-attachments/assets/32e74cd4-f317-4fc8-8900-733eaca6bed3)
+
+8. Run codenya dan nanti data dari ESP32 akan diterima oleh Mosquitto lalu masuk ke Node-RED
+   
+   ![WhatsApp Image 2025-10-07 at 12 20 54 (2)](https://github.com/user-attachments/assets/76cc39ce-b0bc-4cc0-bb85-397e2d531466)
+
+   ![WhatsApp Image 2025-10-07 at 12 24 33](https://github.com/user-attachments/assets/9657feb8-6877-4ad4-a376-478a35d89213)
 
 ## Penjelasan Kode
 
